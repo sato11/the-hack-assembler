@@ -72,3 +72,9 @@ func (p *Parser) CommandType() (CommandTypes, error) {
 	}
 	return E, errors.New("invalid command detected")
 }
+
+// Symbol returns the symbol or decimal Xxx of the current command @Xxx or (Xxx).
+// Should be called only when CommandType() is A or L.
+func (p *Parser) Symbol() string {
+	return strings.Trim(p.currentCommand, "@()")
+}
