@@ -103,6 +103,77 @@ func (p *Parser) Dest() string {
 	}
 }
 
+// Comp returns the comp mnemonic in the current C-command.
+// Should be called only when CommantType() is C.
+func (p *Parser) Comp() (string, error) {
+	var comp string
+	if p.Dest() != "000" {
+		comp = strings.Split(p.currentCommand, "=")[1]
+	} else {
+		comp = strings.Split(p.currentCommand, ";")[0]
+	}
+	switch comp {
+	case "0":
+		return "0101010", nil
+	case "1":
+		return "0111111", nil
+	case "-1":
+		return "0111010", nil
+	case "D":
+		return "0001100", nil
+	case "A":
+		return "0110000", nil
+	case "!D":
+		return "0001101", nil
+	case "!A":
+		return "0110001", nil
+	case "-D":
+		return "0001111", nil
+	case "-A":
+		return "0110011", nil
+	case "D+1":
+		return "0011111", nil
+	case "A+1":
+		return "0110111", nil
+	case "D-1":
+		return "0001110", nil
+	case "A-1":
+		return "0110010", nil
+	case "D+A":
+		return "0000010", nil
+	case "D-A":
+		return "0010011", nil
+	case "A-D":
+		return "0000111", nil
+	case "D&A":
+		return "0000000", nil
+	case "D|A":
+		return "0010101", nil
+	case "M":
+		return "1110000", nil
+	case "!M":
+		return "1110001", nil
+	case "-M":
+		return "1110011", nil
+	case "M+1":
+		return "1110111", nil
+	case "M-1":
+		return "1110010", nil
+	case "D+M":
+		return "1000010", nil
+	case "D-M":
+		return "1010011", nil
+	case "M-D":
+		return "1000111", nil
+	case "D&M":
+		return "1000000", nil
+	case "D|M":
+		return "1010101", nil
+	default:
+		return "", errors.New("invalid comp detected")
+	}
+}
+
 // Jump returns the jump mnemonic in the current C-command.
 // Should be called only when CommandType() is C.
 func (p *Parser) Jump() string {

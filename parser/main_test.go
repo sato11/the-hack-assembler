@@ -132,6 +132,58 @@ func TestDest(t *testing.T) {
 	}
 }
 
+type compTest struct {
+	in  string
+	out string
+}
+
+func TestComp(t *testing.T) {
+	tests := []compTest{
+		{"0;JMP", "0101010"},
+		{"M=0", "0101010"},
+		{"M=1", "0111111"},
+		{"M=-1", "0111010"},
+		{"A=D", "0001100"},
+		{"D;JGT", "0001100"},
+		{"D=A", "0110000"},
+		{"D=!D", "0001101"},
+		{"D=!A", "0110001"},
+		{"D=-D", "0001111"},
+		{"D=-A", "0110011"},
+		{"D=D+1", "0011111"},
+		{"D=A+1", "0110111"},
+		{"D=D-1", "0001110"},
+		{"D=A-1", "0110010"},
+		{"D=D+A", "0000010"},
+		{"D=D-A", "0010011"},
+		{"D=A-D", "0000111"},
+		{"D=D&A", "0000000"},
+		{"D=D|A", "0010101"},
+		{"D=M", "1110000"},
+		{"D=!M", "1110001"},
+		{"D=-M", "1110011"},
+		{"M=M+1", "1110111"},
+		{"M=M-1", "1110010"},
+		{"D=D+M", "1000010"},
+		{"D=D-M", "1010011"},
+		{"M=M-D", "1000111"},
+		{"D=D&M", "1000000"},
+		{"D=D|M", "1010101"},
+	}
+	for i, test := range tests {
+		b := bytes.NewBufferString(test.in)
+		p := New(b)
+		p.currentCommand = test.in
+		comp, err := p.Comp()
+		if err != nil {
+			t.Errorf("#%d: error returned: %v", i, err.Error())
+		}
+		if comp != test.out {
+			t.Errorf("#%d: got: %v want: %v", i, comp, test.out)
+		}
+	}
+}
+
 type jumpTest struct {
 	in  string
 	out string
