@@ -56,6 +56,8 @@ const (
 	C
 	// L represents pseudo-command in the form of (Xxx)
 	L
+	// N represents nothing. occurs when input does not contain any commands
+	N
 	// E represents exception: never returned without error
 	E
 )
@@ -63,6 +65,9 @@ const (
 // CommandType returns the type of the current command
 func (p *Parser) CommandType() (CommandTypes, error) {
 	c := p.currentCommand
+	if c == "" {
+		return N, nil
+	}
 	if strings.HasPrefix(c, "@") {
 		return A, nil
 	}
