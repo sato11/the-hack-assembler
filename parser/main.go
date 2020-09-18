@@ -102,3 +102,28 @@ func (p *Parser) Dest() string {
 		return "000"
 	}
 }
+
+// Jump returns the jump mnemonic in the current C-command.
+// Should be called only when CommandType() is C.
+func (p *Parser) Jump() string {
+	if strings.Contains(p.currentCommand, ";") {
+		jump := strings.Split(p.currentCommand, ";")[1]
+		switch jump {
+		case "JGT":
+			return "001"
+		case "JEQ":
+			return "010"
+		case "JGE":
+			return "011"
+		case "JLT":
+			return "100"
+		case "JNE":
+			return "101"
+		case "JLE":
+			return "110"
+		case "JMP":
+			return "111"
+		}
+	}
+	return "000"
+}
