@@ -34,10 +34,15 @@ func (p *Parser) HasMoreCommands() bool {
 // Should be called only if `HasMoreCommands()` is true.
 func (p *Parser) Advance() error {
 	b, _, err := p.reader.ReadLine()
+	line := string(b)
 	if err != nil {
 		return err
 	}
-	p.currentCommand = string(b)
+	if line == "" || strings.Contains(line, "//") {
+		p.Advance()
+		return nil
+	}
+	p.currentCommand = line
 	return nil
 }
 
