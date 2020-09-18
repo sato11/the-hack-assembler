@@ -78,3 +78,27 @@ func (p *Parser) CommandType() (CommandTypes, error) {
 func (p *Parser) Symbol() string {
 	return strings.Trim(p.currentCommand, "@()")
 }
+
+// Dest returns the dest mnemonic in the current C-command.
+// Should be called only when CommandType() is C.
+func (p *Parser) Dest() string {
+	dest := strings.Split(p.currentCommand, "=")[0]
+	switch dest {
+	case "M":
+		return "001"
+	case "D":
+		return "010"
+	case "MD":
+		return "011"
+	case "A":
+		return "100"
+	case "AM":
+		return "101"
+	case "AD":
+		return "110"
+	case "AMD":
+		return "111"
+	default:
+		return "000"
+	}
+}
