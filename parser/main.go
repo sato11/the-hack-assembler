@@ -2,7 +2,9 @@ package parser
 
 import (
 	"bufio"
+	"errors"
 	"io"
+	"strings"
 )
 
 // Parser wraps the input stream to which operations are intended
@@ -37,4 +39,36 @@ func (p *Parser) Advance() error {
 	}
 	p.currentCommand = string(b)
 	return nil
+}
+
+// CommandTypes represent the return value for func CommandType()
+type CommandTypes int
+
+const (
+	// A represents A-instruction
+	A CommandTypes = iota
+	// C represents C-instruction
+	C
+	// L represents pseudo-command in the form of (Xxx)
+	L
+	// E represents exception: never returned without error
+	E
+)
+
+// CommandType returns the type of the current command
+func (p *Parser) CommandType() (CommandTypes, error) {
+	c := p.currentCommand
+	if strings.HasPrefix(c, "@") {
+		return A, nil
+	}
+	if strings.Contains(c, "=") {
+		return C, nil
+	}
+	if strings.Contains(c, ";") {
+		return C, nil
+	}
+	if strings.HasPrefix(c, "(") && strings.HasSuffix(c, ")") {
+		return L, nil
+	}
+	return E, errors.New("invalid command detected")
 }
