@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -26,6 +27,29 @@ func TestHasMoreCommands(t *testing.T) {
 		out := p.HasMoreCommands()
 		if out != test.out {
 			t.Errorf("#%d: input: %v, got: %v want: %v", i, test.in, out, test.out)
+		}
+	}
+}
+
+func TestAdvance(t *testing.T) {
+	tests := []string{
+		"@i",
+		"M=1 // i=0",
+		"@sum",
+		"M=0 // sum=0",
+		"(LOOP)",
+		"(END)",
+	}
+	input := strings.Join(tests, "\n")
+	b := bytes.NewBufferString(input)
+	p := New(b)
+	for i, test := range tests {
+		err := p.Advance()
+		if err != nil {
+			t.Errorf("#%d: error returned: %v", i, err.Error())
+		}
+		if p.currentCommand != test {
+			t.Errorf("#%d: got: %v want: %v", i, p.currentCommand, test)
 		}
 	}
 }

@@ -7,12 +7,14 @@ import (
 
 // Parser wraps the input stream to which operations are intended
 type Parser struct {
-	reader *bufio.Reader
+	currentCommand string
+	reader         *bufio.Reader
 }
 
 // New converts input stream to Parser
 func New(input io.Reader) *Parser {
 	return &Parser{
+		"",
 		bufio.NewReader(input),
 	}
 }
@@ -24,4 +26,15 @@ func (p *Parser) HasMoreCommands() bool {
 		return false
 	}
 	return true
+}
+
+// Advance reads the next line from the input and makes it the current command.
+// Should be called only if `HasMoreCommands()` is true.
+func (p *Parser) Advance() error {
+	b, _, err := p.reader.ReadLine()
+	if err != nil {
+		return err
+	}
+	p.currentCommand = string(b)
+	return nil
 }
