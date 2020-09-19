@@ -11,3 +11,8 @@ func New() *SymbolTable {
 		make(map[string]int),
 	}
 }
+
+// AddEntry adds the pair to the table.
+func (s *SymbolTable) AddEntry(symbol string, address int) {
+	s.table[symbol] = address
+}
