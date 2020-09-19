@@ -48,3 +48,27 @@ func TestContains(t *testing.T) {
 		}
 	}
 }
+
+type getAddressTest struct {
+	symbol  string
+	address int
+}
+
+func TestGetAddress(t *testing.T) {
+	tests := []getAddressTest{
+		{"i", 1},
+		{"sum", 2},
+		{"LOOP", 3},
+		{"END", 4},
+	}
+	s := New()
+	for _, test := range tests {
+		s.AddEntry(test.symbol, test.address)
+	}
+	for i, test := range tests {
+		address := s.GetAddress(test.symbol)
+		if address != test.address {
+			t.Errorf("#%d: got: %v wanted: %v", i, address, test.address)
+		}
+	}
+}

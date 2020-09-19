@@ -21,3 +21,8 @@ func (s *SymbolTable) AddEntry(symbol string, address int) {
 func (s *SymbolTable) Contains(symbol string) bool {
 	return s.table[symbol] > 0
 }
+
+// GetAddress returns the address associated with the symbol.
+func (s *SymbolTable) GetAddress(symbol string) int {
+	return s.table[symbol]
+}
