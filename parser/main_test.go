@@ -2,8 +2,37 @@ package parser
 
 import (
 	"bytes"
+	"io/ioutil"
 	"testing"
 )
+
+func TestReset(t *testing.T) {
+	tests := []string{
+		"foo",
+		"@value",
+	}
+
+	for i, test := range tests {
+		b := bytes.NewBufferString(test)
+		p := New(b)
+
+		expected, err := ioutil.ReadAll(p.reader)
+		if err != nil {
+			t.Fatalf("#%d: error returned: %v", i, err.Error())
+		}
+
+		p.Reset()
+
+		actual, err := ioutil.ReadAll(p.reader)
+		if err != nil {
+			t.Fatalf("#%d: error returned: %v", i, err.Error())
+		}
+
+		if string(expected) != string(actual) {
+			t.Errorf("#%d: got: %v want: %v", i, string(actual), string(expected))
+		}
+	}
+}
 
 type hasMoreCommandsTest struct {
 	in  string

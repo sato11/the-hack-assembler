@@ -2,8 +2,10 @@ package parser
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"io"
+	"io/ioutil"
 	"strings"
 )
 
@@ -11,14 +13,27 @@ import (
 type Parser struct {
 	currentCommand string
 	reader         *bufio.Reader
+	source         string
 }
 
 // New converts input stream to Parser
 func New(input io.Reader) *Parser {
+	b, err := ioutil.ReadAll(input)
+	if err != nil {
+		panic(err)
+	}
+	r := bytes.NewReader(b)
 	return &Parser{
 		"",
-		bufio.NewReader(input),
+		bufio.NewReader(r),
+		string(b),
 	}
+}
+
+// Reset rewinds the reader to the top.
+func (p *Parser) Reset() {
+	b := bytes.NewBufferString(p.source)
+	p.reader = bufio.NewReader(b)
 }
 
 // HasMoreCommands returns true when there are more commands in the input
