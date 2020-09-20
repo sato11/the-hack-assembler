@@ -65,12 +65,11 @@ func (c *Client) handleFirstPass() error {
 			return err
 		}
 		switch commandType {
-		case parser.A:
-		case parser.C:
+		case parser.A, parser.C:
 			currentAddress++
 		case parser.L:
 			symbol := c.parser.Symbol()
-			c.symboltable.AddEntry(symbol, currentAddress+1)
+			c.symboltable.AddEntry(symbol, currentAddress)
 		}
 	}
 	return nil
