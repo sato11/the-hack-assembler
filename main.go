@@ -76,6 +76,7 @@ func (c *Client) handleFirstPass() error {
 }
 
 func (c *Client) handleSecondPass(buffer *bytes.Buffer) (bytes.Buffer, error) {
+	nextAvailableRAMAddress := 16
 	for c.parser.HasMoreCommands() {
 		c.parser.Advance()
 		commandType, err := c.parser.CommandType()
@@ -95,7 +96,13 @@ func (c *Client) handleSecondPass(buffer *bytes.Buffer) (bytes.Buffer, error) {
 			symbol := c.parser.Symbol()
 			address, err := strconv.Atoi(symbol)
 			if err != nil {
-				address = c.symboltable.GetAddress(symbol)
+				if c.symboltable.Contains(symbol) {
+					address = c.symboltable.GetAddress(symbol)
+				} else {
+					address = nextAvailableRAMAddress
+					c.symboltable.AddEntry(symbol, address)
+					nextAvailableRAMAddress++
+				}
 			}
 			aInstruction := fmt.Sprintf("0%015b\n", address)
 			buffer.WriteString(aInstruction)
