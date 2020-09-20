@@ -22,6 +22,9 @@ func TestRun(t *testing.T) {
 		{"MD=M-1", fmt.Sprintf("%b\n", 0b1111110010011000)},
 		{"D;JGT", fmt.Sprintf("%b\n", 0b1110001100000001)},
 		{"// comment", ""},
+		{"@100 // comment", fmt.Sprintf("0%015b\n", 100)},
+		{"(LOOP)", ""},
+		{"(END)\n@END\n0;JMP", fmt.Sprintf("0%015b\n%b\n", 1, 0b1110101010000111)},
 	}
 	for i, test := range tests {
 		b, err := run(bytes.NewBufferString(test.in))

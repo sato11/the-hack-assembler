@@ -10,6 +10,7 @@ import (
 
 	"github.com/sato11/the-hack-assembler/code"
 	"github.com/sato11/the-hack-assembler/parser"
+	"github.com/sato11/the-hack-assembler/symboltable"
 )
 
 // ExitCodeOK and ExitCodeError represent respectively a status code.
@@ -20,14 +21,16 @@ const (
 
 // Client wraps modules and behaves as a uniform interface.
 type Client struct {
-	parser *parser.Parser
-	code   *code.Code
+	parser      *parser.Parser
+	code        *code.Code
+	symboltable *symboltable.SymbolTable
 }
 
 func new(r io.Reader) *Client {
 	return &Client{
 		parser.New(r),
 		code.New(),
+		symboltable.New(),
 	}
 }
 
@@ -41,34 +44,71 @@ func (c *Client) handleCInstruction() (string, error) {
 	return fmt.Sprintf("%07b%03b%03b", comp, dest, jump), nil
 }
 
-func run(inputReader io.Reader) (bytes.Buffer, error) {
-	var buffer bytes.Buffer
-	client := new(inputReader)
-	for client.parser.HasMoreCommands() {
-		client.parser.Advance()
-		commandType, err := client.parser.CommandType()
+func (c *Client) handleFirstPass() error {
+	currentAddress := 0
+	for c.parser.HasMoreCommands() {
+		c.parser.Advance()
+		commandType, err := c.parser.CommandType()
 		if err != nil {
-			return buffer, err
+			return err
+		}
+		switch commandType {
+		case parser.A:
+		case parser.C:
+			currentAddress++
+		case parser.L:
+			symbol := c.parser.Symbol()
+			c.symboltable.AddEntry(symbol, currentAddress+1)
+		}
+	}
+	return nil
+}
+
+func (c *Client) handleSecondPass(buffer *bytes.Buffer) (bytes.Buffer, error) {
+	for c.parser.HasMoreCommands() {
+		c.parser.Advance()
+		commandType, err := c.parser.CommandType()
+		if err != nil {
+			return *buffer, err
 		}
 		switch commandType {
 		case parser.N:
 			// no-op
 		case parser.C:
-			cInstruction, err := client.handleCInstruction()
+			cInstruction, err := c.handleCInstruction()
 			if err != nil {
-				return buffer, err
+				return *buffer, err
 			}
 			buffer.WriteString(fmt.Sprintf("111%s\n", cInstruction))
 		case parser.A:
-			symbol := client.parser.Symbol()
-			address, err := strconv.ParseInt(symbol, 10, 16)
+			symbol := c.parser.Symbol()
+			address, err := strconv.Atoi(symbol)
 			if err != nil {
-				return buffer, err
+				address = c.symboltable.GetAddress(symbol)
 			}
 			aInstruction := fmt.Sprintf("0%015b\n", address)
 			buffer.WriteString(aInstruction)
 		}
 	}
+	return *buffer, nil
+}
+
+func run(r io.Reader) (bytes.Buffer, error) {
+	var buffer bytes.Buffer
+
+	client := new(r)
+	err := client.handleFirstPass()
+	if err != nil {
+		return buffer, err
+	}
+
+	client.parser.Reset()
+
+	buffer, err = client.handleSecondPass(&buffer)
+	if err != nil {
+		return buffer, err
+	}
+
 	return buffer, nil
 }
 
@@ -79,6 +119,6 @@ func main() {
 		fmt.Println(err.Error())
 		os.Exit(ExitCodeError)
 	}
-	fmt.Println(output.String())
+	fmt.Printf(output.String())
 	os.Exit(ExitCodeOK)
 }
