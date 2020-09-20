@@ -27,10 +27,22 @@ type Client struct {
 }
 
 func new(r io.Reader) *Client {
+	s := symboltable.New()
+	s.AddEntry("SP", 0)
+	s.AddEntry("LCL", 1)
+	s.AddEntry("ARG", 2)
+	s.AddEntry("THIS", 3)
+	s.AddEntry("THAT", 4)
+	for i := 0; i <= 15; i++ {
+		key := fmt.Sprintf("R%d", i)
+		s.AddEntry(key, i)
+	}
+	s.AddEntry("SCREEN", 0x4000)
+	s.AddEntry("KBD", 0x6000)
 	return &Client{
 		parser.New(r),
 		code.New(),
-		symboltable.New(),
+		s,
 	}
 }
 
