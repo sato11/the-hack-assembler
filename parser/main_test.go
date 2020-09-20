@@ -71,6 +71,7 @@ func TestAdvance(t *testing.T) {
 		{"D=M", "D=M"},
 		{"\nD=A", "D=A"},
 		{"// @i=0\nM=1", "M=1"},
+		{"@i // comment", "@i"},
 		{"M=0\n// sum=0", "M=0"},
 		{"(LOOP)", "(LOOP)"},
 	}

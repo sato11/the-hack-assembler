@@ -50,10 +50,12 @@ func (p *Parser) HasMoreCommands() bool {
 func (p *Parser) Advance() error {
 	b, _, err := p.reader.ReadLine()
 	line := string(b)
+	line = strings.Split(line, "//")[0]
+	line = strings.Trim(line, " ")
 	if err != nil {
 		return err
 	}
-	if line == "" || strings.Contains(line, "//") {
+	if line == "" {
 		p.Advance()
 		return nil
 	}
