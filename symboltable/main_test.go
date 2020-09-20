@@ -40,7 +40,7 @@ func TestContains(t *testing.T) {
 		{"", false},
 	}
 	s := New()
-	s.table["contained"] = 1
+	s.table["contained"] = 0
 	s.table["included"] = 3
 	for i, test := range tests {
 		if s.Contains(test.in) != test.out {
